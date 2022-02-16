@@ -28,15 +28,22 @@ const write = function(path, body) {
 }
 
 request(url, (error, response, body) => {
-  console.log('error:', error); // Print the error if one occurred
+  if (error) {
+    console.log('error:', error); // Print the error if one occurred
+    console.log("Exiting program");
+    process.exit();
+  }
   console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-
-  if (fs.existsSync(path)) {
+  if (response.statusCode !== 200) {
+    console.log(`URL Error: ${response.statusCode} --- Cancelling program`);
+    process.exit();
+  } else if (fs.existsSync(path)) {
     rl.question("File already exists, Y and enter to overwrite:  ", answer => {
       if (answer === 'Y') {
         write(path, body);
       } else {
         console.log("cancelling operations");
+        process.exit();
       }
       rl.close();
     })
